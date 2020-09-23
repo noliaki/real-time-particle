@@ -1,96 +1,54 @@
 import * as Three from 'three'
 import * as Bas from 'three-bas'
 
+import { size } from '~/config'
+import { loadTexture } from '~/utils/index'
+
 import vertexParameters from '../glsl/vertexParameters.vert'
 import vertexInit from '../glsl/vertexInit.vert'
 import vertexPosition from '../glsl/vertexPosition.vert'
 
-import { Position } from './StringToImageData'
-import { PointData } from './helper'
-
-export default class Particle extends Three.Mesh {
+export class Particle extends Three.Mesh {
   public material: any
   public endPosition: any
-  private count: number
   public geometry: any
   public endColor: any
 
-  constructor({ count = 100000 } = {}) {
-    const duration = 0.5
-    const maxDelay = 0.5
+  constructor() {
+    const count: number = Math.pow(size, 2)
     const prefabGeometry = new Three.PlaneGeometry()
     const geometry = new Bas.PrefabBufferGeometry(prefabGeometry, count)
 
-    geometry.createAttribute('aStaggerTime', 4, (data): void => {
-      new Three.Vector4(
-        Three.MathUtils.randFloat(100, 800),
-        Three.MathUtils.randFloat(100, 800),
-        Three.MathUtils.randFloat(100, 800),
-        Three.MathUtils.randFloat(100, 800)
-      ).toArray(data)
+    geometry.createAttribute('aIndex', 1, (data, index): void => {
+      data[0] = index
     })
 
-    geometry.createAttribute('aStagger', 4, (data): void => {
-      new Three.Vector4(
-        Math.random(),
-        Math.random(),
-        Math.random(),
-        Three.MathUtils.randFloat(1, 2)
-      ).toArray(data)
-    })
+    const canvas = document.createElement('canvas')
+    canvas.width = size
+    canvas.height = size
 
-    geometry.createAttribute('aDelayDuration', 2, (data): void => {
-      data[0] = Math.random() * maxDelay
-      data[1] = duration
-    })
+    const context = canvas.getContext('2d')
 
-    geometry.createAttribute('aScale', 4, (data): void => {
-      new Three.Vector4(
-        Three.MathUtils.randFloat(2, 10),
-        Three.MathUtils.randFloat(10, 50),
-        Math.random(),
-        Three.MathUtils.randFloat(3, 10)
-      ).toArray(data)
-    })
+    const imageData = context.getImageData(0, 0, size, size)
 
-    geometry.createAttribute('aControl0', 3, (data): void => {
-      new Three.Vector3(0, 0, 0).toArray(data)
-    })
+    console.log(imageData)
 
-    geometry.createAttribute('aStartPosition', 3, (data): void => {
-      const position = getRandomPointOnSphere(Math.random() * 5000)
-      new Three.Vector3(position.x, position.y, position.z).toArray(data)
-    })
+    for (let i = 0; i < imageData.data.length; i += 4) {
+      imageData.data[i + 0] = Math.random() * 255
+      imageData.data[i + 1] = Math.random() * 255
+      imageData.data[i + 2] = Math.random() * 255
+      imageData.data[i + 3] = 255
+    }
 
-    const aEndPosition = geometry.createAttribute(
-      'aEndPosition',
-      3,
-      (data): void => {
-        new Three.Vector3(
-          Three.MathUtils.randFloatSpread(1000),
-          Three.MathUtils.randFloatSpread(1000),
-          0
-        ).toArray(data)
-      }
-    )
+    context.putImageData(imageData, 0, 0)
 
-    const aEndColor = geometry.createAttribute('aEndColor', 3, (data): void => {
-      new Three.Vector3(
-        Three.MathUtils.randFloatSpread(1),
-        Three.MathUtils.randFloatSpread(1),
-        Three.MathUtils.randFloatSpread(1)
-      ).toArray(data)
-    })
+    canvas.style.position = 'fixed'
+    canvas.style.top = '0'
+    canvas.style.left = '0'
 
-    geometry.createAttribute('aAxisAngle', 4, (data): void => {
-      const vec3: Three.Vector3 = new Three.Vector3(
-        Three.MathUtils.randFloatSpread(1),
-        Three.MathUtils.randFloatSpread(1),
-        Three.MathUtils.randFloatSpread(1)
-      )
-      vec3.normalize().toArray(data)
-      data[3] = Math.random() * 360
-    })
+    document.body.appendChild(canvas)
+
+    // const texture = loadTexture(canvas.toDataURL())
 
     const material = new Bas.StandardAnimationMaterial({
       side: Three.DoubleSide,
@@ -102,6 +60,9 @@ export default class Particle extends Three.Mesh {
         uLoudness: { type: 'f', value: 0 },
         uStrLen: { type: 'f', value: 1 },
         uIsImage: { type: 'bool', value: false },
+        uStartTexture: {
+          value: new Three.Texture(canvas),
+        },
       },
       vertexFunctions: [
         Bas.ShaderChunk.cubic_bezier,
@@ -121,9 +82,6 @@ export default class Particle extends Three.Mesh {
     this.frustumCulled = false
     this.material = material
     this.geometry = geometry
-    this.count = count
-    this.endPosition = aEndPosition
-    this.endColor = aEndColor
   }
 
   get time(): number {
@@ -164,65 +122,5 @@ export default class Particle extends Three.Mesh {
 
   set strLen(length: number) {
     this.material.uniforms.uStrLen.value = length
-  }
-
-  setEndPosition(
-    position: Position[] | PointData[],
-    width?: number,
-    height?: number
-  ): void {
-    const ratio: number = width && height ? height / width : 1
-    const positionLen: number = position.length
-    const len: number = this.count
-    const size = 2000
-
-    for (let i = 0; i < len; i++) {
-      const index: number = i % positionLen
-
-      this.geometry.setPrefabData('aEndPosition', i, [
-        position[index].x * size,
-        position[index].y * (size * ratio),
-        0,
-      ])
-    }
-
-    this.endPosition.needsUpdate = true
-  }
-
-  setEndColor(
-    colors: { r: number; g: number; b: number }[] | PointData[]
-  ): void {
-    const colorLen: number = colors.length
-    const len: number = this.count
-
-    for (let i = 0; i < len; i++) {
-      const index: number = i % colorLen
-
-      this.geometry.setPrefabData('aEndColor', i, [
-        colors[index].r,
-        colors[index].g,
-        colors[index].b,
-      ])
-    }
-
-    this.endColor.needsUpdate = true
-  }
-}
-
-function getRandomPointOnSphere(
-  r: number
-): { x: number; y: number; z: number } {
-  const u: number = Three.MathUtils.randFloat(0, 1)
-  const v: number = Three.MathUtils.randFloat(0, 1)
-  const theta: number = 2 * Math.PI * u
-  const phi: number = Math.acos(2 * v - 1)
-  const x: number = r * Math.sin(theta) * Math.sin(phi)
-  const y: number = r * Math.cos(theta) * Math.sin(phi)
-  const z: number = r * Math.cos(phi)
-
-  return {
-    x,
-    y,
-    z,
   }
 }

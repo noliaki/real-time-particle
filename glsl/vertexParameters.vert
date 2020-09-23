@@ -3,16 +3,24 @@ uniform float uProgress;
 uniform float uLoudness;
 uniform float uStrLen;
 uniform bool uIsImage;
-attribute vec2 aDelayDuration;
-attribute vec3 aStartPosition;
-attribute vec3 aControl0;
-attribute vec3 aEndPosition;
-attribute vec3 aEndColor;
-attribute vec4 aAxisAngle;
-attribute vec4 aStagger;
-attribute vec4 aScale;
-attribute vec4 aStaggerTime;
+uniform sampler2D uStartTexture;
+// attribute vec2 aDelayDuration;
+// attribute vec3 aStartPosition;
+// attribute vec3 aControl0;
+// attribute vec3 aEndPosition;
+// attribute vec3 aEndColor;
+// attribute vec4 aAxisAngle;
+// attribute vec4 aStagger;
+// attribute vec4 aScale;
+// attribute vec4 aStaggerTime;
+attribute float aIndex;
+const float size = 315.0;
 const float width = 1500.0;
+const float count = pow(size, 2.0);
+
+const float frag = 1.0 / size;
+const float texShift = frag / 2.0;
+
 
 //
 // Description : Array and textureless GLSL 2D/3D/4D simplex
