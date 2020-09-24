@@ -5,14 +5,9 @@
 // transformed.x += noiseX * (width * (1.0 - tProgress) + width * 0.05);
 // transformed.y += noiseY * (width * (1.0 - tProgress) + width * 0.05);
 // transformed.z += noiseZ * (width * (1.0 - tProgress) + width * 0.05);
-float pu = fract(aIndex * frag) + texShift;
-float pv = floor(aIndex * frag) * frag + texShift;
 
-vec3 pos = texture2D(uStartTexture, vec2(0.0, 0.0)).rgb * 2.0 - 1.0;
-
-transformed *= 3.0;
-transformed.x += (pos.r) * 100.0 + aIndex;
-transformed.y += (pos.g) * 100.0 * sin(uTime / 80.0);
-transformed.z += (pos.b) * 100.0;
-
-vec3 color = texture2D(uStartTexture, vec2(0.3, 0.2)).rgb * 20.0;
+transformed = rotateVector(tQuat, transformed);
+transformed *= ((noise + 1.0) * 0.5) * 20.0 + 0.1;
+transformed.x += (pos.r) * width + width * noise * (utilMap.z * 2.0 - 1.0) * 0.5;
+transformed.y += (pos.g) * width + width * noise * (utilMap.x * 2.0 - 1.0) * 0.5;
+transformed.z += (pos.b) * width + width * noise * (utilMap.a * 2.0 - 1.0) * 0.5;

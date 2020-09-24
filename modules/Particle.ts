@@ -6,7 +6,7 @@ import {
 } from 'three-bas'
 
 import { size } from '~/config'
-import { loadTexture } from '~/utils/index'
+import { createCanvasTexture } from '~/utils/index'
 
 import vertexParameters from '../glsl/vertexParameters.vert'
 import vertexInit from '../glsl/vertexInit.vert'
@@ -18,7 +18,7 @@ export class Particle extends Three.Mesh {
   public geometry: any
   public endColor: any
 
-  constructor(initTexture) {
+  constructor() {
     const count: number = Math.pow(size, 2)
     const prefabGeometry = new Three.PlaneGeometry()
     const geometry = new PrefabBufferGeometry(prefabGeometry, count)
@@ -26,33 +26,6 @@ export class Particle extends Three.Mesh {
     geometry.createAttribute('aIndex', 1, (data, index): void => {
       data[0] = index
     })
-
-    const canvas = document.createElement('canvas')
-    canvas.width = size
-    canvas.height = size
-
-    const context = canvas.getContext('2d')
-
-    const imageData = context.getImageData(0, 0, size, size)
-
-    for (let i = 0; i < imageData.data.length; i += 4) {
-      imageData.data[i + 0] = 255
-      imageData.data[i + 1] = Math.random() * 0
-      imageData.data[i + 2] = Math.random() * 0
-      imageData.data[i + 3] = 255
-    }
-
-    context.putImageData(imageData, 0, 0)
-
-    canvas.style.position = 'fixed'
-    canvas.style.top = '0'
-    canvas.style.left = '0'
-
-    document.body.appendChild(canvas)
-
-    const texture = new Three.Texture(canvas)
-
-    console.log(texture)
 
     const material = new StandardAnimationMaterial({
       side: Three.DoubleSide,
@@ -64,9 +37,21 @@ export class Particle extends Three.Mesh {
         uLoudness: { type: 'f', value: 0 },
         uStrLen: { type: 'f', value: 1 },
         uIsImage: { type: 'bool', value: false },
-        uStartTexture: {
+        uTex: {
           type: 't',
-          value: texture,
+          value: new Three.CanvasTexture(createCanvasTexture()),
+        },
+        uStartTex: {
+          type: 't',
+          value: new Three.CanvasTexture(createCanvasTexture()),
+        },
+        uEndTex: {
+          type: 't',
+          value: new Three.CanvasTexture(createCanvasTexture()),
+        },
+        uUtilTex: {
+          type: 't',
+          value: new Three.CanvasTexture(createCanvasTexture()),
         },
       },
       vertexFunctions: [

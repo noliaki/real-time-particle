@@ -35,14 +35,8 @@ export class ThreeBase {
 
     window.addEventListener(
       'resize',
-      (): void => {
-        if (this.timerId) {
-          window.clearTimeout(this.timerId)
-        }
-
-        this.timerId = window.setTimeout(() => {
-          this.setSize()
-        }, 300)
+      (_event: Event) => {
+        this.onWinResize()
       },
       {
         passive: true,
@@ -55,16 +49,10 @@ export class ThreeBase {
     }
 
     const light = new Three.AmbientLight(0xffffff)
-    const light2 = new Three.DirectionalLight(0xffffff)
     light.position.y = -1000
     light.position.z = 1000
 
-    // light2.position.x = 1000
-    light2.position.y = 1000
-    light2.position.z = 1000
-
     this.addToScene(light)
-    this.addToScene(light2)
 
     this.setSize()
     this.tick()
@@ -93,5 +81,15 @@ export class ThreeBase {
     this.renderer.setSize(width, height)
     this.camera.aspect = width / height
     this.camera.updateProjectionMatrix()
+  }
+
+  onWinResize(): void {
+    if (this.timerId) {
+      window.clearTimeout(this.timerId)
+    }
+
+    this.timerId = window.setTimeout(() => {
+      this.setSize()
+    }, 300)
   }
 }

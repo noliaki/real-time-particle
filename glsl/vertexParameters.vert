@@ -3,7 +3,10 @@ uniform float uProgress;
 uniform float uLoudness;
 uniform float uStrLen;
 uniform bool uIsImage;
-uniform sampler2D uStartTexture;
+uniform sampler2D uTex;
+uniform sampler2D uStartTex;
+uniform sampler2D uEndTex;
+uniform sampler2D uUtilTex;
 // attribute vec2 aDelayDuration;
 // attribute vec3 aStartPosition;
 // attribute vec3 aControl0;
@@ -14,9 +17,10 @@ uniform sampler2D uStartTexture;
 // attribute vec4 aScale;
 // attribute vec4 aStaggerTime;
 attribute float aIndex;
+
 const float size = 256.0;
-const float width = 1500.0;
 const float count = pow(size, 2.0);
+const float width = count * 0.05;
 
 const float frag = 1.0 / size;
 const float texShift = frag * 0.5;
