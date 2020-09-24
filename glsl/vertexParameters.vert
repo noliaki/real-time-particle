@@ -14,12 +14,12 @@ uniform sampler2D uStartTexture;
 // attribute vec4 aScale;
 // attribute vec4 aStaggerTime;
 attribute float aIndex;
-const float size = 315.0;
+const float size = 256.0;
 const float width = 1500.0;
 const float count = pow(size, 2.0);
 
 const float frag = 1.0 / size;
-const float texShift = frag / 2.0;
+const float texShift = frag * 0.5;
 
 
 //

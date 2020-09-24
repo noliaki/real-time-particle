@@ -1,5 +1,9 @@
 import * as Three from 'three'
-import * as Bas from 'three-bas'
+import {
+  PrefabBufferGeometry,
+  StandardAnimationMaterial,
+  ShaderChunk,
+} from 'three-bas'
 
 import { size } from '~/config'
 import { loadTexture } from '~/utils/index'
@@ -14,10 +18,10 @@ export class Particle extends Three.Mesh {
   public geometry: any
   public endColor: any
 
-  constructor() {
+  constructor(initTexture) {
     const count: number = Math.pow(size, 2)
     const prefabGeometry = new Three.PlaneGeometry()
-    const geometry = new Bas.PrefabBufferGeometry(prefabGeometry, count)
+    const geometry = new PrefabBufferGeometry(prefabGeometry, count)
 
     geometry.createAttribute('aIndex', 1, (data, index): void => {
       data[0] = index
@@ -31,12 +35,10 @@ export class Particle extends Three.Mesh {
 
     const imageData = context.getImageData(0, 0, size, size)
 
-    console.log(imageData)
-
     for (let i = 0; i < imageData.data.length; i += 4) {
-      imageData.data[i + 0] = Math.random() * 255
-      imageData.data[i + 1] = Math.random() * 255
-      imageData.data[i + 2] = Math.random() * 255
+      imageData.data[i + 0] = 255
+      imageData.data[i + 1] = Math.random() * 0
+      imageData.data[i + 2] = Math.random() * 0
       imageData.data[i + 3] = 255
     }
 
@@ -48,9 +50,11 @@ export class Particle extends Three.Mesh {
 
     document.body.appendChild(canvas)
 
-    // const texture = loadTexture(canvas.toDataURL())
+    const texture = new Three.Texture(canvas)
 
-    const material = new Bas.StandardAnimationMaterial({
+    console.log(texture)
+
+    const material = new StandardAnimationMaterial({
       side: Three.DoubleSide,
       flatShading: true,
       vertexColors: Three.VertexColors,
@@ -61,15 +65,16 @@ export class Particle extends Three.Mesh {
         uStrLen: { type: 'f', value: 1 },
         uIsImage: { type: 'bool', value: false },
         uStartTexture: {
-          value: new Three.Texture(canvas),
+          type: 't',
+          value: texture,
         },
       },
       vertexFunctions: [
-        Bas.ShaderChunk.cubic_bezier,
-        Bas.ShaderChunk.ease_circ_in_out,
-        Bas.ShaderChunk.ease_elastic_in_out,
-        Bas.ShaderChunk.ease_quad_out,
-        Bas.ShaderChunk.quaternion_rotation,
+        ShaderChunk.cubic_bezier,
+        ShaderChunk.ease_circ_in_out,
+        ShaderChunk.ease_elastic_in_out,
+        ShaderChunk.ease_quad_out,
+        ShaderChunk.quaternion_rotation,
       ],
       vertexParameters,
       vertexInit,
