@@ -38,7 +38,7 @@ export function loadTexture(src: string): Promise<Three.Texture> {
   })
 }
 
-export function createCanvasTexture(): HTMLCanvasElement {
+export function createCanvasTexture(color?: number): HTMLCanvasElement {
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
@@ -47,10 +47,10 @@ export function createCanvasTexture(): HTMLCanvasElement {
   const imageData = context.getImageData(0, 0, size, size)
 
   for (let i = 0; i < imageData.data.length; i += 4) {
-    imageData.data[i + 0] = Math.random() * 255
-    imageData.data[i + 1] = Math.random() * 255
-    imageData.data[i + 2] = Math.random() * 255
-    imageData.data[i + 3] = 255
+    imageData.data[i + 0] = color || Math.random() * 255
+    imageData.data[i + 1] = color || Math.random() * 255
+    imageData.data[i + 2] = color || Math.random() * 255
+    imageData.data[i + 3] = color || Math.random() * 255
   }
 
   context.putImageData(imageData, 0, 0)

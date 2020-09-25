@@ -7,7 +7,7 @@
 // transformed.z += noiseZ * (width * (1.0 - tProgress) + width * 0.05);
 
 transformed = rotateVector(tQuat, transformed);
-transformed *= ((noise + 1.0) * 0.5) * 20.0 + 0.1;
-transformed.x += (pos.r) * width + width * noise * (utilMap.z * 2.0 - 1.0) * 0.5;
-transformed.y += (pos.g) * width + width * noise * (utilMap.x * 2.0 - 1.0) * 0.5;
-transformed.z += (pos.b) * width + width * noise * (utilMap.a * 2.0 - 1.0) * 0.5;
+transformed *= ((noise + 1.0) * 0.5) * 20.0 + ePosMap.a;
+transformed.x += (sPosMap.r) * width + width * noise * sPosMap.a * 0.5;
+transformed.y += (sPosMap.g) * width + width * noise * ePosMap.a * 0.5;
+transformed.z += (sPosMap.b) * width + width * noise * sPosMap.x * 0.5;

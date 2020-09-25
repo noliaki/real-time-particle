@@ -1,41 +1,48 @@
-import React, { useRef, useEffect } from 'react'
+import React, { useRef, useEffect, useCallback } from 'react'
 
 import { ThreeBase } from '../modules/ThreeBase'
 import { Particle } from '../modules/Particle'
 
 // import { size } from '~/config'
 // import { loadTexture } from '~/utils'
-let rafId: number = null
 
 export default function ParticleCanvas(): JSX.Element {
-  const canvasEl = useRef()
+  const canvasEl = useRef<HTMLCanvasElement>()
+  const baseRef = useRef<ThreeBase>()
+  const particleRef = useRef<Particle>()
+  const rafRef = useRef<number>()
+
+  const update = useCallback((): void => {
+    particleRef.current.time++
+    baseRef.current.tick()
+
+    rafRef.current = requestAnimationFrame(() => {
+      update()
+    })
+  }, [])
 
   useEffect(() => {
-    drawParticle(canvasEl.current)
+    const { base, particle } = drawParticle(canvasEl.current)
+    baseRef.current = base
+    particleRef.current = particle
 
-    return () => dispose(canvasEl.current)
+    update()
+
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+    }
   }, [])
 
   return <canvas ref={canvasEl}></canvas>
 }
 
-function drawParticle(el: HTMLCanvasElement): void {
+function drawParticle(
+  el: HTMLCanvasElement
+): { base: ThreeBase; particle: Particle } {
   const base = new ThreeBase(el)
   const particle = new Particle()
 
   base.addToScene(particle)
 
-  update()
-
-  function update() {
-    particle.time++
-    base.tick()
-    rafId = requestAnimationFrame(() => {
-      update()
-    })
-  }
-}
-
-function dispose(el: HTMLCanvasElement): void {
-  cancelAnimationFrame(rafId)
+  return { base, particle }
 }
