@@ -56,6 +56,7 @@ export class Particle extends Mesh {
       flatShading: true,
       vertexColors: VertexColors,
       uniforms: {
+        uImageRate: { type: 'f', value: 1 },
         uTime: { type: 'f', value: 0 },
         uProgress: { type: 'f', value: 0 },
         uLoudness: { type: 'f', value: 0 },

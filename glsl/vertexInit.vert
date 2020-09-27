@@ -1,4 +1,3 @@
-// float tProgress = clamp(uProgress - aDelayDuration.x, 0.0, aDelayDuration.y) / aDelayDuration.y;
 // tProgress = easeCircInOut(tProgress);
 // float noiseX = snoise(vec3(aStagger.x, aStagger.y, uTime / (5.0 * width * aStagger.z)));
 // float noiseY = snoise(vec3(aStagger.y, aStagger.z, uTime / (5.0 * width * aStagger.x)));
@@ -14,8 +13,17 @@ vec4 ePosMap = texture2D(uTex, vec2(pu, pv)) * 2.0 - 1.0;
 vec4 sColorMap = texture2D(uTex, vec2(pu + 0.5, pv + 0.5));
 vec4 eColorMap = texture2D(uTex, vec2(pu + 0.5, pv));
 
-float noise = snoise(vec3(sPosMap.a * size, ePosMap.a * size, uTime * 0.001));
-vec4 tQuat = quatFromAxisAngle(sColorMap.xyz, radians(sColorMap.a) + (uTime * 0.1) * noise);
+float tProgress = clamp(uProgress - sColorMap.a, 0.0, (1.0 - sColorMap.a)) / (1.0 - sColorMap.a);
+tProgress = easeCircInOut(tProgress);
 
-vec3 color = hsv(cos(uTime * 0.008) + (sColorMap.a * 0.3), 0.66, 0.98);
+float noise = snoise(vec3(sPosMap.a * size, ePosMap.a * size, uTime * 0.001));
+vec4 tQuat = quatFromAxisAngle(sColorMap.xyz, radians(sColorMap.a) + (uTime * 0.1) * noise) * (1.0 - tProgress);
+
+vec3 hsvColor = hsv(cos(uTime * 0.008) + (sColorMap.a * 0.3), 0.66, 0.98);
+vec3 color = vec3(
+  mix(hsvColor.r, eColorMap.r, tProgress),
+  mix(hsvColor.g, eColorMap.g, tProgress),
+  mix(hsvColor.b, eColorMap.b, tProgress)
+);
+// mix(hsv(cos(uTime * 0.008) + (sColorMap.a * 0.3), 0.66, 0.98), eColorMap.rgb, tProgress);
 // vec3 color = vec3(0.5, 0.1, 0.7);

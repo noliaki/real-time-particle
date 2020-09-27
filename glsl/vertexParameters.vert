@@ -2,6 +2,7 @@ uniform float uTime;
 uniform float uProgress;
 uniform float uLoudness;
 uniform float uStrLen;
+uniform float uImageRate;
 uniform bool uIsImage;
 uniform sampler2D uTex;
 // attribute vec2 aDelayDuration;

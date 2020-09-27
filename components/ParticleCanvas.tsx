@@ -1,4 +1,5 @@
 import React, { useRef, useEffect } from 'react'
+import { gsap } from 'gsap'
 
 import { ThreeBase } from '../modules/ThreeBase'
 import { Particle } from '../modules/Particle'
@@ -6,7 +7,11 @@ import { Particle } from '../modules/Particle'
 import style from './ParticleCanvas.module.scss'
 
 // import { size } from '~/config'
-import { loadImage } from '~/utils'
+import {
+  loadImage,
+  createCanvasFromImage,
+  createCanvasFromImageData,
+} from '~/utils'
 import { size } from '@/config'
 
 export default function ParticleCanvas(): JSX.Element {
@@ -25,6 +30,20 @@ export default function ParticleCanvas(): JSX.Element {
       update()
     })
   }
+  const toImage = (): void => {
+    gsap.to(particleRef.current, {
+      progress: 1,
+      duration: 3,
+      onComplete(): void {
+        setTimeout(() => {
+          gsap.to(particleRef.current, {
+            progress: 0,
+            duration: 3,
+          })
+        }, 7000)
+      },
+    })
+  }
 
   const onChange = (event: React.ChangeEvent): void => {
     const file = (event.target as HTMLInputElement)?.files?.[0]
@@ -32,6 +51,8 @@ export default function ParticleCanvas(): JSX.Element {
     if (file && file.type.startsWith('image')) {
       reader.readAsDataURL((event.target as HTMLInputElement).files[0])
     }
+
+    (event.target as HTMLInputElement).value = ''
   }
 
   reader.addEventListener(
@@ -39,13 +60,8 @@ export default function ParticleCanvas(): JSX.Element {
     async (event: Event): Promise<void> => {
       const imgSrc: string = (event.target as FileReader).result as string
       const img: HTMLImageElement = await loadImage(imgSrc)
-      const canvas = createCanvasFromImage(img)
-
-      canvas.style.position = 'fixed'
-      canvas.style.top = '0'
-      canvas.style.right = '0'
-
-      document.body.appendChild(canvas)
+      particleRef.current.setTexture('color-end', createCanvasFromImage(img))
+      toImage()
     }
   )
 
@@ -83,26 +99,4 @@ function drawParticle(
   base.addToScene(particle)
 
   return { base, particle }
-}
-
-function createCanvasFromImage(img: HTMLImageElement): HTMLCanvasElement {
-  const canvas: HTMLCanvasElement = document.createElement('canvas')
-  canvas.width = img.naturalWidth
-  canvas.height = img.naturalHeight
-
-  const context: CanvasRenderingContext2D = canvas.getContext('2d')
-  context.drawImage(img, 0, 0)
-
-  return canvas
-}
-
-function createCanvasFromImageData(imgData: ImageData): HTMLCanvasElement {
-  const canvas: HTMLCanvasElement = document.createElement('canvas')
-  canvas.width = imgData.width
-  canvas.height = imgData.height
-
-  const context: CanvasRenderingContext2D = canvas.getContext('2d')
-  context.putImageData(imgData, 0, 0)
-
-  return canvas
 }

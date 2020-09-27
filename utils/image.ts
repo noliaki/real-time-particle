@@ -57,3 +57,29 @@ export function createCanvasTexture(color?: number): HTMLCanvasElement {
 
   return canvas
 }
+
+export function createCanvasFromImage(
+  img: HTMLImageElement
+): HTMLCanvasElement {
+  const canvas: HTMLCanvasElement = document.createElement('canvas')
+  canvas.width = img.naturalWidth
+  canvas.height = img.naturalHeight
+
+  const context: CanvasRenderingContext2D = canvas.getContext('2d')
+  context.drawImage(img, 0, 0)
+
+  return canvas
+}
+
+export function createCanvasFromImageData(
+  imgData: ImageData
+): HTMLCanvasElement {
+  const canvas: HTMLCanvasElement = document.createElement('canvas')
+  canvas.width = imgData.width
+  canvas.height = imgData.height
+
+  const context: CanvasRenderingContext2D = canvas.getContext('2d')
+  context.putImageData(imgData, 0, 0)
+
+  return canvas
+}
