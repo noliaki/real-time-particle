@@ -59,9 +59,6 @@ export class Particle extends Mesh {
         uImageRate: { type: 'f', value: 1 },
         uTime: { type: 'f', value: 0 },
         uProgress: { type: 'f', value: 0 },
-        uLoudness: { type: 'f', value: 0 },
-        uStrLen: { type: 'f', value: 1 },
-        uIsImage: { type: 'bool', value: false },
         uTex: {
           type: 't',
           value: new CanvasTexture(srcCanvas),
@@ -97,14 +94,6 @@ export class Particle extends Mesh {
     this.material.uniforms.uTime.value = time
   }
 
-  get uIsImage(): boolean {
-    return this.material.uniforms.uIsImage.value
-  }
-
-  set uIsImage(val: boolean) {
-    this.material.uniforms.uIsImage.value = val
-  }
-
   get progress(): number {
     return this.material.uniforms.uProgress.value
   }
@@ -113,30 +102,26 @@ export class Particle extends Mesh {
     this.material.uniforms.uProgress.value = progress
   }
 
-  get loudness(): number {
-    return this.material.uniforms.uLoudness.value
+  get imageRate(): number {
+    return this.material.uniforms.uImageRate.value
   }
 
-  set loudness(loudness: number) {
-    this.material.uniforms.uLoudness.value = loudness
-  }
-
-  get strLen(): number {
-    return this.material.uniforms.uStrLen.value
-  }
-
-  set strLen(length: number) {
-    this.material.uniforms.uStrLen.value = length
+  set imageRate(val: number) {
+    this.material.uniforms.uImageRate.value = val
   }
 
   setTexture(area: CanvasArea, canvas: HTMLCanvasElement): void {
     if (area === 'position-start') {
+      this.textureSrcContext.clearRect(0, 0, size, size)
       this.textureSrcContext.drawImage(canvas, 0, 0)
     } else if (area === 'position-end') {
+      this.textureSrcContext.clearRect(0, size, size, size)
       this.textureSrcContext.drawImage(canvas, 0, size)
     } else if (area === 'color-start') {
+      this.textureSrcContext.clearRect(size, 0, size, size)
       this.textureSrcContext.drawImage(canvas, size, 0)
     } else {
+      this.textureSrcContext.clearRect(size, size, size, size)
       this.textureSrcContext.drawImage(canvas, size, size)
     }
 

@@ -1,9 +1,6 @@
 uniform float uTime;
 uniform float uProgress;
-uniform float uLoudness;
-uniform float uStrLen;
 uniform float uImageRate;
-uniform bool uIsImage;
 uniform sampler2D uTex;
 // attribute vec2 aDelayDuration;
 // attribute vec3 aStartPosition;
@@ -23,8 +20,9 @@ const float width = count * 0.05;
 const float frag = 1.0 / size;
 const float texShift = frag * 0.5;
 
+const float maxDelay = 0.5;
+const float duration = 1.0 - maxDelay;
 
-//
 // Description : Array and textureless GLSL 2D/3D/4D simplex
 //               noise functions.
 //      Author : Ian McEwan, Ashima Arts.

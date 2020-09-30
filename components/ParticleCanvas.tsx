@@ -46,13 +46,14 @@ export default function ParticleCanvas(): JSX.Element {
   }
 
   const onChange = (event: React.ChangeEvent): void => {
-    const file = (event.target as HTMLInputElement)?.files?.[0]
+    const target = event.target as HTMLInputElement
+    const file = target?.files?.[0]
 
     if (file && file.type.startsWith('image')) {
-      reader.readAsDataURL((event.target as HTMLInputElement).files[0])
+      reader.readAsDataURL(target.files[0])
     }
 
-    (event.target as HTMLInputElement).value = ''
+    target.value = ''
   }
 
   reader.addEventListener(
@@ -60,6 +61,8 @@ export default function ParticleCanvas(): JSX.Element {
     async (event: Event): Promise<void> => {
       const imgSrc: string = (event.target as FileReader).result as string
       const img: HTMLImageElement = await loadImage(imgSrc)
+      particleRef.current.imageRate = img.naturalHeight / img.naturalWidth
+      console.log(particleRef.current.imageRate)
       particleRef.current.setTexture('color-end', createCanvasFromImage(img))
       toImage()
     }

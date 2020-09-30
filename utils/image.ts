@@ -62,11 +62,11 @@ export function createCanvasFromImage(
   img: HTMLImageElement
 ): HTMLCanvasElement {
   const canvas: HTMLCanvasElement = document.createElement('canvas')
-  canvas.width = img.naturalWidth
-  canvas.height = img.naturalHeight
+  canvas.width = size
+  canvas.height = size
 
   const context: CanvasRenderingContext2D = canvas.getContext('2d')
-  context.drawImage(img, 0, 0)
+  context.drawImage(img, 0, 0, size, size)
 
   return canvas
 }
