@@ -3,6 +3,12 @@ import Pusher from 'pusher-js'
 
 const PusherContext = createContext<Pusher>(null)
 
+export const PusherEvent = {
+  ON_CONNECTED_CONTROLLER: 'ON_CONNECTED_CONTROLLER',
+} as const
+
+export type PusherEvent = typeof PusherEvent[keyof typeof PusherEvent]
+
 export function usePusher(): Pusher {
   return useContext(PusherContext)
 }
@@ -10,17 +16,15 @@ export function usePusher(): Pusher {
 export function PusherProvider(props: {
   children: React.ReactNode
 }): JSX.Element {
-  const clientRef = useRef<Pusher>(null)
-
-  console.log(process.env.NEXT_PUBLIC_PUSHER_KEY)
+  const clientRef = useRef<Pusher>(
+    new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY)
+  )
 
   useEffect(() => {
-    clientRef.current = new Pusher(process.env.NEXT_PUBLIC_PUSHER_KEY)
-
     return () => {
       clientRef.current.disconnect()
     }
-  }, [clientRef, props])
+  }, [])
 
   return (
     <PusherContext.Provider value={clientRef.current}>
