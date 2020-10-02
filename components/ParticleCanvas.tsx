@@ -6,6 +6,8 @@ import { Particle } from '../modules/Particle'
 
 import style from './ParticleCanvas.module.scss'
 
+import { usePusher } from '~/modules/PusherContext'
+
 // import { size } from '~/config'
 import {
   loadImage,
@@ -19,6 +21,10 @@ export default function ParticleCanvas(): JSX.Element {
   const baseRef = useRef<ThreeBase>()
   const particleRef = useRef<Particle>()
   const rafRef = useRef<number>()
+
+  const pusher = usePusher()
+
+  console.log(pusher)
 
   const reader: FileReader = new FileReader()
 
