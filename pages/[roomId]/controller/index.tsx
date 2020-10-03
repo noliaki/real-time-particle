@@ -39,7 +39,7 @@ export default function controller(): JSX.Element {
       console.log(`SocketIoEvent.CONTROLLER_JOINED_ROOM: ` + roomId)
       io.emit(SocketIoEvent.CONNECTED_CONTROLLER, { roomId })
     })
-  }, [roomId, io])
+  }, [roomId, io.connected])
 
   useEffect(() => {
     window.addEventListener('deviceorientation', onDeviceOrientation)
