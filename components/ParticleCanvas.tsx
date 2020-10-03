@@ -1,20 +1,9 @@
 import React, { useRef, useEffect } from 'react'
 import { gsap } from 'gsap'
-
 import { ThreeBase } from '../modules/ThreeBase'
 import { Particle } from '../modules/Particle'
-
-import style from './ParticleCanvas.module.scss'
-
-import { usePusher } from '~/modules/PusherContext'
-
-// import { size } from '~/config'
-import {
-  loadImage,
-  createCanvasFromImage,
-  createCanvasFromImageData,
-} from '~/utils'
-import { size } from '@/config'
+import { SocketIoEvent, useSocketIo } from '~/modules/SocketIoContext'
+import { createCanvasFromImageData } from '~/utils/image'
 
 export default function ParticleCanvas(): JSX.Element {
   const canvasEl = useRef<HTMLCanvasElement>()
@@ -22,11 +11,7 @@ export default function ParticleCanvas(): JSX.Element {
   const particleRef = useRef<Particle>()
   const rafRef = useRef<number>()
 
-  const pusher = usePusher()
-
-  console.log(pusher)
-
-  const reader: FileReader = new FileReader()
+  const io = useSocketIo()
 
   const update = (): void => {
     particleRef.current.time++
@@ -36,6 +21,7 @@ export default function ParticleCanvas(): JSX.Element {
       update()
     })
   }
+
   const toImage = (): void => {
     gsap.to(particleRef.current, {
       progress: 1,
@@ -51,33 +37,25 @@ export default function ParticleCanvas(): JSX.Element {
     })
   }
 
-  const onChange = (event: React.ChangeEvent): void => {
-    const target = event.target as HTMLInputElement
-    const file = target?.files?.[0]
-
-    if (file && file.type.startsWith('image')) {
-      reader.readAsDataURL(target.files[0])
-    }
-
-    target.value = ''
-  }
-
-  reader.addEventListener(
-    'load',
-    async (event: Event): Promise<void> => {
-      const imgSrc: string = (event.target as FileReader).result as string
-      const img: HTMLImageElement = await loadImage(imgSrc)
-      particleRef.current.imageRate = img.naturalHeight / img.naturalWidth
-      console.log(particleRef.current.imageRate)
-      particleRef.current.setTexture('color-end', createCanvasFromImage(img))
-      toImage()
-    }
-  )
-
   useEffect(() => {
     const { base, particle } = drawParticle(canvasEl.current)
     baseRef.current = base
     particleRef.current = particle
+
+    io.on(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, ({ x, y, z }) => {
+      baseRef.current.camera.position.x = x
+      baseRef.current.camera.position.y = y
+      baseRef.current.camera.position.z = z
+    })
+
+    io.on(SocketIoEvent.ON_UPLOAD_IMAGE, ({ imageRate, data }) => {
+      particleRef.current.imageRate = imageRate
+      particleRef.current.setTexture(
+        'color-end',
+        createCanvasFromImageData(data)
+      )
+      toImage()
+    })
 
     update()
 
@@ -89,12 +67,6 @@ export default function ParticleCanvas(): JSX.Element {
   return (
     <React.Fragment>
       <canvas ref={canvasEl}></canvas>
-      <input
-        type="file"
-        className={style.input}
-        onChange={onChange}
-        accept="image/*"
-      />
     </React.Fragment>
   )
 }

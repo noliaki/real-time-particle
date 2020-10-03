@@ -71,15 +71,21 @@ export function createCanvasFromImage(
   return canvas
 }
 
-export function createCanvasFromImageData(
-  imgData: ImageData
-): HTMLCanvasElement {
+export function createCanvasFromImageData(data: number[]): HTMLCanvasElement {
   const canvas: HTMLCanvasElement = document.createElement('canvas')
-  canvas.width = imgData.width
-  canvas.height = imgData.height
+  canvas.width = size
+  canvas.height = size
 
   const context: CanvasRenderingContext2D = canvas.getContext('2d')
-  context.putImageData(imgData, 0, 0)
+  const imageData: ImageData = context.getImageData(0, 0, size, size)
+
+  const colorData = imageData.data
+
+  data.forEach((val: number, index: number): void => {
+    colorData[index] = val
+  })
+
+  context.putImageData(imageData, 0, 0)
 
   return canvas
 }
