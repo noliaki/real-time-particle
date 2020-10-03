@@ -4,7 +4,10 @@ import io from 'socket.io-client'
 const SocketIoContext = createContext<SocketIOClient.Socket>(null)
 
 export const SocketIoEvent = {
-  ON_CONNECTED_CONTROLLER: 'ON_CONNECTED_CONTROLLER',
+  CONNECTED_CONTROLLER: 'CONNECTED_CONTROLLER',
+  MOVE_CAMERA: 'MOVE_CAMERA',
+  ORIENTATION_CHANGE: 'ORIENTATION_CHANGE',
+  JOIN_ROOM: 'JOIN_ROOM',
 } as const
 
 export type SocketIoEvent = typeof SocketIoEvent[keyof typeof SocketIoEvent]
@@ -20,11 +23,9 @@ export function SocketIoProvider(props: {
     io(process.env.NEXT_PUBLIC_SOCKET_ORIGIN)
   )
 
-  // useEffect(() => {
-  //   ioRef.current.on('connect', () => {
-  //     console.log(ioRef.current)
-  //   })
-  // }, [])
+  useEffect(() => {
+    return () => ioRef.current.close()
+  }, [])
 
   return (
     <SocketIoContext.Provider value={ioRef.current}>

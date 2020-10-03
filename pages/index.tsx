@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 // import Link from 'next/link'
 import { v4 as uuidv4 } from 'uuid'
 import QRCode from 'qrcode'
-import { useSocketIo } from '~/modules/SocketIoContext'
+import { SocketIoEvent, useSocketIo } from '~/modules/SocketIoContext'
 import { localstorageName } from '../config'
 
 export default function Home(): JSX.Element {
@@ -15,7 +15,15 @@ export default function Home(): JSX.Element {
   useEffect(() => {
     window.localStorage.setItem(localstorageName, channelId.current)
 
-    io.on('connect', () => {})
+    io.on('connect', () => {
+      io.emit(SocketIoEvent.JOIN_ROOM, { roomId: channelId })
+    })
+
+    io.on(SocketIoEvent.CONNECTED_CONTROLLER, () => {
+      io.off(SocketIoEvent.CONNECTED_CONTROLLER)
+
+      router.push(`/view/${channelId.current}`)
+    })
 
     // pusher
     //   .subscribe(channelId.current)
