@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { ThreeBase } from '~/modules/ThreeBase'
 import { SphereGeometry, MeshBasicMaterial, Mesh } from 'three'
 import { useSocketIo, SocketIoEvent } from '~/modules/SocketIoContext'
@@ -18,7 +18,7 @@ export default function controllerCanvas(): JSX.Element {
 
   const { roomId } = router.query
 
-  const update = (): void => {
+  const update = useCallback((): void => {
     baseRef.current.tick()
 
     if (
@@ -45,7 +45,7 @@ export default function controllerCanvas(): JSX.Element {
     rafRef.current = requestAnimationFrame(() => {
       update()
     })
-  }
+  }, [ioState, roomId])
 
   useEffect(() => {
     baseRef.current = drawCanvas(canvasRef.current)

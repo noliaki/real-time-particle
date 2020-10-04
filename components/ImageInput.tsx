@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useCallback } from 'react'
 import { useSocketIo, SocketIoEvent } from '~/modules/SocketIoContext'
 import { loadImage, createCanvasFromImage } from '~/utils/image'
 import { useRouter } from 'next/router'
@@ -10,28 +10,31 @@ export default function imageInput(): JSX.Element {
   const router = useRouter()
   const { roomId } = router.query
 
-  const onLoadFile = async (event: Event): Promise<void> => {
-    const imgSrc: string = (event.target as FileReader).result as string
-    const img: HTMLImageElement = await loadImage(imgSrc)
-    const imgCanvas: HTMLCanvasElement = createCanvasFromImage(img)
-    const imgCanvasContext: CanvasRenderingContext2D = imgCanvas.getContext(
-      '2d'
-    )
-    const imgData = imgCanvasContext.getImageData(
-      0,
-      0,
-      imgCanvas.width,
-      imgCanvas.height
-    )
+  const onLoadFile = useCallback(
+    async (event: Event): Promise<void> => {
+      const imgSrc: string = (event.target as FileReader).result as string
+      const img: HTMLImageElement = await loadImage(imgSrc)
+      const imgCanvas: HTMLCanvasElement = createCanvasFromImage(img)
+      const imgCanvasContext: CanvasRenderingContext2D = imgCanvas.getContext(
+        '2d'
+      )
+      const imgData = imgCanvasContext.getImageData(
+        0,
+        0,
+        imgCanvas.width,
+        imgCanvas.height
+      )
 
-    if (ioState && roomId) {
-      io.emit(SocketIoEvent.ON_UPLOAD_IMAGE, {
-        roomId,
-        imageRate: img.naturalHeight / img.naturalWidth,
-        data: Array.from(imgData.data),
-      })
-    }
-  }
+      if (ioState && roomId) {
+        io.emit(SocketIoEvent.ON_UPLOAD_IMAGE, {
+          roomId,
+          imageRate: img.naturalHeight / img.naturalWidth,
+          data: Array.from(imgData.data),
+        })
+      }
+    },
+    [ioState, roomId]
+  )
 
   const onChange = (event: React.ChangeEvent): void => {
     const target = event.target as HTMLInputElement
