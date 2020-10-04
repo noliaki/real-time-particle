@@ -38,7 +38,7 @@ export function SocketIoProvider(props: {
     io(process.env.NEXT_PUBLIC_SOCKET_ORIGIN)
   )
 
-  const [ioState, setIoState] = useState<boolean>()
+  const [ioState, setIoState] = useState<boolean>(false)
 
   ioRef.current.on('connect', () => {
     console.log(ioRef.current.connected)
