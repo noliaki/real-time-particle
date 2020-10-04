@@ -9,13 +9,13 @@ import { SocketIoEvent, useSocketIo } from '~/modules/SocketIoContext'
 export default function Home(): JSX.Element {
   const canvasEl = useRef<HTMLCanvasElement>(null)
   const router = useRouter()
-  const io = useSocketIo()
+  const { io, ioState } = useSocketIo()
   const [roomId, setRoomId] = useState<string>('')
 
   useEffect(() => {
-    io.on('connect', () => {
-      io.emit(SocketIoEvent.VIEW_JOIN_ROOM)
-    })
+    if (!ioState) {
+      return
+    }
 
     io.on(SocketIoEvent.VIEW_JOINED_ROOM, ({ roomId }) => {
       console.log(`SocketIoEvent.VIEW_JOINED_ROOM: ` + roomId)
@@ -25,11 +25,16 @@ export default function Home(): JSX.Element {
     io.on(SocketIoEvent.CONNECTED_CONTROLLER, ({ roomId }) => {
       console.log(`SocketIoEvent.CONNECTED_CONTROLLER: ` + roomId)
 
-      io.off(SocketIoEvent.CONNECTED_CONTROLLER)
-
       router.push(`/${roomId}/view`)
     })
-  }, [io])
+
+    io.emit(SocketIoEvent.VIEW_JOIN_ROOM)
+
+    return () => {
+      console.log('io.off(SocketIoEvent.CONNECTED_CONTROLLER)')
+      io.off(SocketIoEvent.CONNECTED_CONTROLLER)
+    }
+  }, [ioState])
 
   useEffect(() => {
     if (roomId) {

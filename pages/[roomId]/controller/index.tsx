@@ -15,31 +15,35 @@ const ImageInput = dynamic(() => import('~/components/ImageInput'), {
 })
 
 export default function controller(): JSX.Element {
-  const io = useSocketIo()
+  const { io, ioState } = useSocketIo()
   const router = useRouter()
   const { roomId } = router.query
 
   const onDeviceOrientation = (event: DeviceOrientationEvent): void => {
-    if (io.connected) {
-      io.emit(SocketIoEvent.DEVICE_ORIENTATION, {
-        roomId,
-        alpha: event.alpha,
-        beta: event.beta,
-        gamma: event.gamma,
-      })
+    if (!ioState) {
+      return
     }
+
+    io.emit(SocketIoEvent.DEVICE_ORIENTATION, {
+      roomId,
+      alpha: event.alpha,
+      beta: event.beta,
+      gamma: event.gamma,
+    })
   }
 
   useEffect(() => {
-    if (io.connected && roomId) {
-      io.emit(SocketIoEvent.CONTROLLER_JOIN_ROOM, { roomId })
+    if (!ioState || !roomId) {
+      return
     }
 
     io.on(SocketIoEvent.CONTROLLER_JOINED_ROOM, ({ roomId }) => {
       console.log(`SocketIoEvent.CONTROLLER_JOINED_ROOM: ` + roomId)
       io.emit(SocketIoEvent.CONNECTED_CONTROLLER, { roomId })
     })
-  }, [roomId, io.connected])
+
+    io.emit(SocketIoEvent.CONTROLLER_JOIN_ROOM, { roomId })
+  }, [roomId, ioState])
 
   useEffect(() => {
     window.addEventListener('deviceorientation', onDeviceOrientation)

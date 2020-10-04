@@ -1,7 +1,16 @@
-import React, { createContext, useRef, useEffect, useContext } from 'react'
+import React, {
+  createContext,
+  useRef,
+  useEffect,
+  useContext,
+  useState,
+} from 'react'
 import io from 'socket.io-client'
 
-const SocketIoContext = createContext<SocketIOClient.Socket>(null)
+const SocketIoContext = createContext<{
+  io: SocketIOClient.Socket
+  ioState: boolean
+}>(null)
 
 export const SocketIoEvent = {
   VIEW_JOIN_ROOM: 'VIEW_JOIN_ROOM',
@@ -18,7 +27,7 @@ export const SocketIoEvent = {
 
 export type SocketIoEvent = typeof SocketIoEvent[keyof typeof SocketIoEvent]
 
-export function useSocketIo(): SocketIOClient.Socket {
+export function useSocketIo(): { io: SocketIOClient.Socket; ioState: boolean } {
   return useContext(SocketIoContext)
 }
 
@@ -29,12 +38,19 @@ export function SocketIoProvider(props: {
     io(process.env.NEXT_PUBLIC_SOCKET_ORIGIN)
   )
 
+  const [ioState, setIoState] = useState<boolean>()
+
+  ioRef.current.on('connect', () => {
+    console.log(ioRef.current.connected)
+    setIoState(ioRef.current.connected)
+  })
+
   useEffect(() => {
     return () => ioRef.current.close()
   }, [])
 
   return (
-    <SocketIoContext.Provider value={ioRef.current}>
+    <SocketIoContext.Provider value={{ io: ioRef.current, ioState }}>
       {props.children}
     </SocketIoContext.Provider>
   )

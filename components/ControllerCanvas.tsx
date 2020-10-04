@@ -13,7 +13,7 @@ export default function controllerCanvas(): JSX.Element {
     y: 0,
     z: 0,
   })
-  const io = useSocketIo()
+  const { io, ioState } = useSocketIo()
   const router = useRouter()
 
   const { roomId } = router.query
@@ -22,7 +22,7 @@ export default function controllerCanvas(): JSX.Element {
     baseRef.current.tick()
 
     if (
-      io.connected &&
+      ioState &&
       roomId &&
       positionRef.current?.x !== baseRef.current.camera.position.x &&
       positionRef.current?.y !== baseRef.current.camera.position.y &&

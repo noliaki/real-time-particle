@@ -11,7 +11,7 @@ export default function ParticleCanvas(): JSX.Element {
   const particleRef = useRef<Particle>()
   const rafRef = useRef<number>()
 
-  const io = useSocketIo()
+  const { io, ioState } = useSocketIo()
 
   const update = (): void => {
     particleRef.current.time++
@@ -38,6 +38,10 @@ export default function ParticleCanvas(): JSX.Element {
   }
 
   useEffect(() => {
+    if (!ioState) {
+      return
+    }
+
     const { base, particle } = drawParticle(canvasEl.current)
     baseRef.current = base
     particleRef.current = particle
@@ -62,7 +66,7 @@ export default function ParticleCanvas(): JSX.Element {
     return () => {
       cancelAnimationFrame(rafRef.current)
     }
-  }, [])
+  }, [ioState])
 
   return (
     <React.Fragment>
