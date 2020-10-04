@@ -23,6 +23,8 @@ export default function ParticleCanvas(): JSX.Element {
   }
 
   const toImage = (): void => {
+    console.log('toImage')
+
     gsap.to(particleRef.current, {
       progress: 1,
       duration: 3,
@@ -38,21 +40,23 @@ export default function ParticleCanvas(): JSX.Element {
   }
 
   useEffect(() => {
+    console.log('ParticleCanvas')
+
     if (!ioState) {
       return
     }
 
-    const { base, particle } = drawParticle(canvasEl.current)
-    baseRef.current = base
-    particleRef.current = particle
-
     io.on(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, ({ x, y, z }) => {
+      console.log('SocketIoEvent.ON_CAMERA_POSITION_CHANGE')
+
       baseRef.current.camera.position.x = x
       baseRef.current.camera.position.y = y
       baseRef.current.camera.position.z = z
     })
 
     io.on(SocketIoEvent.ON_UPLOAD_IMAGE, ({ imageRate, data }) => {
+      console.log('SocketIoEvent.ON_UPLOAD_IMAGE')
+
       particleRef.current.imageRate = imageRate
       particleRef.current.setTexture(
         'color-end',
@@ -60,24 +64,26 @@ export default function ParticleCanvas(): JSX.Element {
       )
       toImage()
     })
-
-    update()
-
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-    }
   }, [ioState])
 
-  return (
-    <React.Fragment>
-      <canvas ref={canvasEl}></canvas>
-    </React.Fragment>
-  )
+  useEffect(() => {
+    console.log('didMount')
+
+    const { base, particle } = drawParticle(canvasEl.current)
+    baseRef.current = base
+    particleRef.current = particle
+
+    update()
+  }, [])
+
+  return <canvas ref={canvasEl}></canvas>
 }
 
 function drawParticle(
   el: HTMLCanvasElement
 ): { base: ThreeBase; particle: Particle } {
+  console.log('drawParticle')
+
   const base = new ThreeBase(el)
   const particle = new Particle()
 

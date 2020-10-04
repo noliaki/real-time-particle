@@ -24,7 +24,6 @@ export default function Home(): JSX.Element {
 
     io.on(SocketIoEvent.CONNECTED_CONTROLLER, ({ roomId }) => {
       console.log(`SocketIoEvent.CONNECTED_CONTROLLER: ` + roomId)
-
       router.push(`/${roomId}/view`)
     })
 

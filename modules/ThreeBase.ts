@@ -58,6 +58,16 @@ export class ThreeBase {
     this.tick()
   }
 
+  dispose(): void {
+    window.removeEventListener('resize', (_event: Event) => {
+      this.onWinResize()
+    })
+
+    while (this.scene.children.length > 0) {
+      this.scene.remove(this.scene.children[0])
+    }
+  }
+
   addToScene(obj): void {
     this.scene.add(obj)
   }

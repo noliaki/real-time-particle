@@ -53,11 +53,7 @@ export default function controllerCanvas(): JSX.Element {
     update()
   }, [])
 
-  return (
-    <React.Fragment>
-      <canvas ref={canvasRef}></canvas>
-    </React.Fragment>
-  )
+  return <canvas ref={canvasRef}></canvas>
 }
 
 function drawCanvas(el: HTMLCanvasElement): ThreeBase {

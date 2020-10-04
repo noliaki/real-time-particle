@@ -19,18 +19,18 @@ export default function controller(): JSX.Element {
   const router = useRouter()
   const { roomId } = router.query
 
-  const onDeviceOrientation = (event: DeviceOrientationEvent): void => {
-    if (!ioState) {
-      return
-    }
+  // const onDeviceOrientation = (event: DeviceOrientationEvent): void => {
+  //   if (!ioState) {
+  //     return
+  //   }
 
-    io.emit(SocketIoEvent.DEVICE_ORIENTATION, {
-      roomId,
-      alpha: event.alpha,
-      beta: event.beta,
-      gamma: event.gamma,
-    })
-  }
+  //   io.emit(SocketIoEvent.DEVICE_ORIENTATION, {
+  //     roomId,
+  //     alpha: event.alpha,
+  //     beta: event.beta,
+  //     gamma: event.gamma,
+  //   })
+  // }
 
   useEffect(() => {
     if (!ioState || !roomId) {
@@ -45,13 +45,13 @@ export default function controller(): JSX.Element {
     io.emit(SocketIoEvent.CONTROLLER_JOIN_ROOM, { roomId })
   }, [roomId, ioState])
 
-  useEffect(() => {
-    window.addEventListener('deviceorientation', onDeviceOrientation)
+  // useEffect(() => {
+  //   window.addEventListener('deviceorientation', onDeviceOrientation)
 
-    return () => {
-      window.removeEventListener('deviceorientation', onDeviceOrientation)
-    }
-  }, [])
+  //   return () => {
+  //     window.removeEventListener('deviceorientation', onDeviceOrientation)
+  //   }
+  // }, [])
 
   return (
     <React.Fragment>
