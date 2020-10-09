@@ -13,16 +13,29 @@ export default function controllerCanvas(): JSX.Element {
     y: 0,
     z: 0,
   })
-  const { io, ioState } = useSocketIo()
+  const socket = useSocketIo()
   const router = useRouter()
 
   const { roomId } = router.query
+
+  const cameraMove = useCallback(
+    throttle(() => {
+      if (!roomId) {
+        return
+      }
+
+      socket.emit(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, {
+        roomId,
+        ...positionRef.current,
+      })
+    }, 50),
+    [roomId]
+  )
 
   const update = useCallback((): void => {
     baseRef.current.tick()
 
     if (
-      ioState &&
       roomId &&
       positionRef.current?.x !== baseRef.current.camera.position.x &&
       positionRef.current?.y !== baseRef.current.camera.position.y &&
@@ -34,23 +47,23 @@ export default function controllerCanvas(): JSX.Element {
         z: baseRef.current.camera.position.z,
       }
 
-      io.emit(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, {
-        roomId,
-        ...positionRef.current,
-      })
+      cameraMove()
     }
 
-    console.log(baseRef.current.camera.position)
-
+    cancelAnimationFrame(rafRef.current)
     rafRef.current = requestAnimationFrame(() => {
       update()
     })
-  }, [ioState, roomId])
+  }, [roomId])
 
   useEffect(() => {
     baseRef.current = drawCanvas(canvasRef.current)
-
+    cancelAnimationFrame(rafRef.current)
     update()
+
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+    }
   }, [])
 
   return <canvas ref={canvasRef}></canvas>
@@ -64,4 +77,21 @@ function drawCanvas(el: HTMLCanvasElement): ThreeBase {
   base.addToScene(sphere)
 
   return base
+}
+
+function throttle(fn: (...args) => void, interval): () => void {
+  let prevTimestamp = 0
+
+  return (...args): void => {
+    if (!prevTimestamp) {
+      prevTimestamp = Date.now()
+    }
+
+    const now = Date.now()
+
+    if (now - prevTimestamp >= interval) {
+      prevTimestamp = now
+      fn(...args)
+    }
+  }
 }

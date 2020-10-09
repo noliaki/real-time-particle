@@ -1,10 +1,10 @@
 const TerserPlugin = require('terser-webpack-plugin')
-const isProd = process.env.NODE_ENV !== 'development'
+const isProd = process.env.NODE_ENV === 'development'
 
 const terserConfig = new TerserPlugin({
   terserOptions: {
     compress: {
-      drop_console: process.env.NODE_ENV !== 'development'
+      drop_console: isProd
     }
   }
 })
@@ -26,20 +26,11 @@ module.exports = {
 
     if (!config.optimization) {
       config.optimization = {
-        minimize: isProd,
         minimizer: [
-          new TerserPlugin({
-            terserOptions: {
-              compress: {
-                drop_console: process.env.NODE_ENV !== 'development'
-              }
-            }
-          })
+          terserConfig
         ]
       }
     } else {
-      config.optimization.minimize = isProd
-
       if(config.optimization.minimizer.length > 0) {
         config.optimization.minimizer.push(terserConfig)
       } else {

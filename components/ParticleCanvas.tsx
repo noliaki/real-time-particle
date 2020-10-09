@@ -10,8 +10,9 @@ export default function ParticleCanvas(): JSX.Element {
   const baseRef = useRef<ThreeBase>()
   const particleRef = useRef<Particle>()
   const rafRef = useRef<number>()
+  const timerIdRef = useRef<number>(0)
 
-  const { io, ioState } = useSocketIo()
+  const socket = useSocketIo()
 
   const update = (): void => {
     particleRef.current.time++
@@ -29,7 +30,9 @@ export default function ParticleCanvas(): JSX.Element {
       progress: 1,
       duration: 3,
       onComplete(): void {
-        setTimeout(() => {
+        window.clearTimeout(timerIdRef.current)
+
+        timerIdRef.current = window.setTimeout(() => {
           gsap.to(particleRef.current, {
             progress: 0,
             duration: 3,
@@ -40,13 +43,11 @@ export default function ParticleCanvas(): JSX.Element {
   }
 
   useEffect(() => {
-    console.log('ParticleCanvas')
+    const { base, particle } = drawParticle(canvasEl.current)
+    baseRef.current = base
+    particleRef.current = particle
 
-    if (!ioState) {
-      return
-    }
-
-    io.on(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, ({ x, y, z }) => {
+    socket.on(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, ({ x, y, z }) => {
       console.log('SocketIoEvent.ON_CAMERA_POSITION_CHANGE')
 
       baseRef.current.camera.position.x = x
@@ -54,7 +55,7 @@ export default function ParticleCanvas(): JSX.Element {
       baseRef.current.camera.position.z = z
     })
 
-    io.on(SocketIoEvent.ON_UPLOAD_IMAGE, ({ imageRate, data }) => {
+    socket.on(SocketIoEvent.ON_UPLOAD_IMAGE, ({ imageRate, data }) => {
       console.log('SocketIoEvent.ON_UPLOAD_IMAGE')
 
       particleRef.current.imageRate = imageRate
@@ -64,16 +65,20 @@ export default function ParticleCanvas(): JSX.Element {
       )
       toImage()
     })
-  }, [ioState])
 
-  useEffect(() => {
-    console.log('didMount')
-
-    const { base, particle } = drawParticle(canvasEl.current)
-    baseRef.current = base
-    particleRef.current = particle
-
+    cancelAnimationFrame(rafRef.current)
     update()
+
+    return () => {
+      cancelAnimationFrame(rafRef.current)
+      socket.off(SocketIoEvent.ON_CAMERA_POSITION_CHANGE)
+      socket.off(SocketIoEvent.ON_UPLOAD_IMAGE)
+      particleRef.current.progress = 0
+      baseRef.current.dispose()
+      particleRef.current.dispose()
+      baseRef.current = null
+      particleRef.current = null
+    }
   }, [])
 
   return <canvas ref={canvasEl}></canvas>

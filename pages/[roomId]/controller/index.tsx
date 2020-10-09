@@ -15,16 +15,15 @@ const ImageInput = dynamic(() => import('~/components/ImageInput'), {
 })
 
 export default function controller(): JSX.Element {
-  const { io, ioState } = useSocketIo()
+  const socket = useSocketIo()
   const router = useRouter()
-  const { roomId } = router.query
 
   // const onDeviceOrientation = (event: DeviceOrientationEvent): void => {
   //   if (!ioState) {
   //     return
   //   }
 
-  //   io.emit(SocketIoEvent.DEVICE_ORIENTATION, {
+  //   socket.emit(SocketIoEvent.DEVICE_ORIENTATION, {
   //     roomId,
   //     alpha: event.alpha,
   //     beta: event.beta,
@@ -32,18 +31,26 @@ export default function controller(): JSX.Element {
   //   })
   // }
 
+  const { roomId } = router.query
   useEffect(() => {
-    if (!ioState || !roomId) {
+    console.log(roomId)
+
+    if (!roomId) {
       return
     }
 
-    io.on(SocketIoEvent.CONTROLLER_JOINED_ROOM, ({ roomId }) => {
+    socket.on(SocketIoEvent.CONTROLLER_JOINED_ROOM, ({ roomId }) => {
       console.log(`SocketIoEvent.CONTROLLER_JOINED_ROOM: ` + roomId)
-      io.emit(SocketIoEvent.CONNECTED_CONTROLLER, { roomId })
+      socket.off(SocketIoEvent.CONTROLLER_JOINED_ROOM)
+      socket.emit(SocketIoEvent.CONNECTED_CONTROLLER, { roomId })
     })
 
-    io.emit(SocketIoEvent.CONTROLLER_JOIN_ROOM, { roomId })
-  }, [roomId, ioState])
+    socket.emit(SocketIoEvent.CONTROLLER_JOIN_ROOM, { roomId })
+
+    return () => {
+      socket.off(SocketIoEvent.CONTROLLER_JOINED_ROOM)
+    }
+  }, [roomId])
 
   // useEffect(() => {
   //   window.addEventListener('deviceorientation', onDeviceOrientation)

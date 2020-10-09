@@ -46,6 +46,7 @@ export class Particle extends Mesh {
     srcCanvas.height = size * 2
 
     const srcContext: CanvasRenderingContext2D = srcCanvas.getContext('2d')
+    srcContext.clearRect(0, 0, size * 2, size * 2)
     srcContext.drawImage(createCanvasTexture(), 0, 0)
     srcContext.drawImage(createCanvasTexture(), size, 0)
     srcContext.drawImage(createCanvasTexture(), 0, size)
@@ -84,6 +85,13 @@ export class Particle extends Mesh {
     this.geometry = geometry
     this.textureSrcCanvas = srcCanvas
     this.textureSrcContext = srcContext
+  }
+
+  dispose(): void {
+    this.material = null
+    this.geometry = null
+    this.textureSrcCanvas = null
+    this.textureSrcContext = null
   }
 
   get time(): number {

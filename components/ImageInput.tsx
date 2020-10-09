@@ -6,7 +6,7 @@ import style from './ImageInput.module.scss'
 
 export default function imageInput(): JSX.Element {
   const fileReader = new FileReader()
-  const { io, ioState } = useSocketIo()
+  const socket = useSocketIo()
   const router = useRouter()
   const { roomId } = router.query
 
@@ -25,15 +25,15 @@ export default function imageInput(): JSX.Element {
         imgCanvas.height
       )
 
-      if (ioState && roomId) {
-        io.emit(SocketIoEvent.ON_UPLOAD_IMAGE, {
+      if (roomId) {
+        socket.emit(SocketIoEvent.ON_UPLOAD_IMAGE, {
           roomId,
           imageRate: img.naturalHeight / img.naturalWidth,
           data: Array.from(imgData.data),
         })
       }
     },
-    [ioState, roomId]
+    [roomId]
   )
 
   const onChange = (event: React.ChangeEvent): void => {

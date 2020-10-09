@@ -28,6 +28,7 @@ export class ThreeBase {
       antialias: true,
     })
     this.renderer.setClearColor(new Three.Color(0x1a202c))
+    this.renderer.clear()
 
     this.controls = isPC()
       ? new TrackballControls(this.camera, this.renderer.domElement)
@@ -59,6 +60,7 @@ export class ThreeBase {
   }
 
   dispose(): void {
+    this.renderer.clear()
     window.removeEventListener('resize', (_event: Event) => {
       this.onWinResize()
     })

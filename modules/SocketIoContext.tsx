@@ -1,16 +1,7 @@
-import React, {
-  createContext,
-  useRef,
-  useEffect,
-  useContext,
-  useState,
-} from 'react'
+import React, { createContext, useEffect, useContext, useState } from 'react'
 import io from 'socket.io-client'
 
-const SocketIoContext = createContext<{
-  io: SocketIOClient.Socket
-  ioState: boolean
-}>(null)
+const SocketIoContext = createContext<SocketIOClient.Socket>(null)
 
 export const SocketIoEvent = {
   VIEW_JOIN_ROOM: 'VIEW_JOIN_ROOM',
@@ -27,31 +18,26 @@ export const SocketIoEvent = {
 
 export type SocketIoEvent = typeof SocketIoEvent[keyof typeof SocketIoEvent]
 
-export function useSocketIo(): { io: SocketIOClient.Socket; ioState: boolean } {
+export function useSocketIo(): SocketIOClient.Socket {
   return useContext(SocketIoContext)
 }
 
-export function SocketIoProvider(props: {
+export function SocketIoProvider({
+  children,
+}: {
   children: React.ReactNode
 }): JSX.Element {
-  const ioRef = useRef<SocketIOClient.Socket>(
-    io(process.env.NEXT_PUBLIC_SOCKET_ORIGIN)
+  const [socket] = useState<SocketIOClient.Socket>(() =>
+    io.connect(process.env.NEXT_PUBLIC_SOCKET_ORIGIN)
   )
 
-  const [ioState, setIoState] = useState<boolean>(false)
-
-  ioRef.current.on('connect', () => {
-    console.log(ioRef.current.connected)
-    setIoState(ioRef.current.connected)
-  })
-
   useEffect(() => {
-    return () => ioRef.current.close()
+    return () => socket.close()
   }, [])
 
   return (
-    <SocketIoContext.Provider value={{ io: ioRef.current, ioState }}>
-      {props.children}
+    <SocketIoContext.Provider value={socket}>
+      {children}
     </SocketIoContext.Provider>
   )
 }
