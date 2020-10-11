@@ -1,9 +1,3 @@
-// tProgress = easeCircInOut(tProgress);
-// float noiseX = snoise(vec3(aStagger.x, aStagger.y, uTime / (5.0 * width * aStagger.z)));
-// float noiseY = snoise(vec3(aStagger.y, aStagger.z, uTime / (5.0 * width * aStagger.x)));
-// float noiseZ = snoise(vec3(aStagger.z, aStagger.x, uTime / (5.0 * width * aStagger.y)));
-// float noise = (noiseX + noiseY + noiseZ) / 3.0;
-// vec4 tQuat = quatFromAxisAngle(aAxisAngle.xyz, radians(aAxisAngle.w) + (uTime / 10.0) * noise);
 float pu = (fract(aIndex * frag) + texShift) * 0.5;
 float pv = (floor(aIndex * frag) * frag + texShift) * 0.5;
 
@@ -30,5 +24,3 @@ vec3 color = vec3(
 
 float endScaleRate = uImageRate < 1.0 ? 1.0 / uImageRate : uImageRate;
 float transformOffset = width * noise * 0.5;
-// mix(hsv(cos(uTime * 0.008) + (sColorMap.a * 0.3), 0.66, 0.98), eColorMap.rgb, tProgress);
-// vec3 color = vec3(0.5, 0.1, 0.7);

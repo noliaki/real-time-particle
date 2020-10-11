@@ -17,21 +17,8 @@ const ImageInput = dynamic(() => import('~/components/ImageInput'), {
 export default function controller(): JSX.Element {
   const socket = useSocketIo()
   const router = useRouter()
-
-  // const onDeviceOrientation = (event: DeviceOrientationEvent): void => {
-  //   if (!ioState) {
-  //     return
-  //   }
-
-  //   socket.emit(SocketIoEvent.DEVICE_ORIENTATION, {
-  //     roomId,
-  //     alpha: event.alpha,
-  //     beta: event.beta,
-  //     gamma: event.gamma,
-  //   })
-  // }
-
   const { roomId } = router.query
+
   useEffect(() => {
     console.log(roomId)
 
@@ -51,14 +38,6 @@ export default function controller(): JSX.Element {
       socket.off(SocketIoEvent.CONTROLLER_JOINED_ROOM)
     }
   }, [roomId])
-
-  // useEffect(() => {
-  //   window.addEventListener('deviceorientation', onDeviceOrientation)
-
-  //   return () => {
-  //     window.removeEventListener('deviceorientation', onDeviceOrientation)
-  //   }
-  // }, [])
 
   return (
     <React.Fragment>

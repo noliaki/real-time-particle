@@ -2,15 +2,6 @@ uniform float uTime;
 uniform float uProgress;
 uniform float uImageRate;
 uniform sampler2D uTex;
-// attribute vec2 aDelayDuration;
-// attribute vec3 aStartPosition;
-// attribute vec3 aControl0;
-// attribute vec3 aEndPosition;
-// attribute vec3 aEndColor;
-// attribute vec4 aAxisAngle;
-// attribute vec4 aStagger;
-// attribute vec4 aScale;
-// attribute vec4 aStaggerTime;
 attribute float aIndex;
 
 const float size = 256.0;

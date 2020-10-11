@@ -40,15 +40,6 @@ module.exports = {
       }
     }
 
-    // config.optimization.minimize = isProd
-    // config.optimization.minimizer.push(new TerserPlugin({
-    //   terserOptions: {
-    //     compress: {
-    //       drop_console: process.env.NODE_ENV !== 'development'
-    //     }
-    //   }
-    // }))
-
     return config
   },
 }
