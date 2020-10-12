@@ -50,9 +50,11 @@ export default function ParticleCanvas(): JSX.Element {
     socket.on(SocketIoEvent.ON_CAMERA_POSITION_CHANGE, ({ x, y, z }) => {
       console.log('SocketIoEvent.ON_CAMERA_POSITION_CHANGE')
 
-      baseRef.current.camera.position.x = x
-      baseRef.current.camera.position.y = y
-      baseRef.current.camera.position.z = z
+      gsap.to(baseRef.current.camera.position, {
+        x,
+        y,
+        z,
+      })
     })
 
     socket.on(SocketIoEvent.ON_UPLOAD_IMAGE, ({ imageRate, data }) => {
