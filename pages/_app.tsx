@@ -4,6 +4,12 @@ import { SocketIoProvider } from '~/modules/SocketIoContext'
 
 import '../styles/globals.css'
 
+if (process.env.NODE_ENV === 'production') {
+  for (const key in console) {
+    console[key] = noop
+  }
+}
+
 function MyApp({ Component, pageProps }: AppProps): JSX.Element {
   return (
     <SocketIoProvider>
@@ -15,5 +21,8 @@ function MyApp({ Component, pageProps }: AppProps): JSX.Element {
     </SocketIoProvider>
   )
 }
+
+/* eslint-disable-next-line */
+function noop(): void {}
 
 export default MyApp

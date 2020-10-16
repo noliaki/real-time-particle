@@ -1,16 +1,8 @@
 const TerserPlugin = require('terser-webpack-plugin')
-const isProd = process.env.NODE_ENV === 'development'
-
-const terserConfig = new TerserPlugin({
-  terserOptions: {
-    compress: {
-      drop_console: isProd
-    }
-  }
-})
+const isProd = process.env.NODE_ENV !== 'development'
 
 module.exports = {
-  webpack: (config, {isServer}) => {
+  webpack: (config, {isServer, dev}) => {
     config.module.rules.push({
       test: /\.(vert|glsl)/,
       use: [
@@ -19,26 +11,6 @@ module.exports = {
         },
       ],
     })
-
-    if(isServer) {
-      return config
-    }
-
-    if (!config.optimization) {
-      config.optimization = {
-        minimizer: [
-          terserConfig
-        ]
-      }
-    } else {
-      if(config.optimization.minimizer.length > 0) {
-        config.optimization.minimizer.push(terserConfig)
-      } else {
-        config.optimization.minimizer = [
-          terserConfig
-        ]
-      }
-    }
 
     return config
   },
